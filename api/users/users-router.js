@@ -33,17 +33,21 @@ router.post("/", validateUser, (req, res, next) => {
     });
 });
 
-router.put("/:id", validateUserId, validateUser, (req, res) => {
-  // RETURN THE FRESHLY UPDATED USER OBJECT
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
-  console.log(req.name);
-  console.log(req.user);
+router.put("/:id", validateUserId, validateUser, (req, res, next) => {
+  User.update(req.params.id, { name: req.name })
+    .then((updatedUser) => {
+      res.json(updatedUser);
+    })
+    .catch(next);
 });
 
-router.delete("/:id", validateUserId, (req, res) => {
-  // RETURN THE FRESHLY DELETED USER OBJECT
-  // this needs a middleware to verify user id
+router.delete("/:id", validateUserId, async (req, res) => {
+  try {
+    await User.remove(req.params.id);
+    res.json(req.user);
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.get("/:id/posts", validateUserId, (req, res) => {
